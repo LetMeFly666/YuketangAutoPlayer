@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly
- * @LastEditTime: 2023-09-22 21:14:00
+ * @LastEditTime: 2023-09-22 21:18:58
 -->
 # YuketangAutoPlayer
 
@@ -37,7 +37,7 @@ pip install selenium
 
 首先电脑上要安装有[Chrome浏览器](https://www.google.cn/chrome/index.html)（别装到假的Chrome了，之前有同学装了个假Chrome后来问我为什么程序不能正常运行QAQ）
 
-其次需要下载**对应版本的**```ChromeDriver```：[下载网址1](https://chromedriver.chromium.org/downloads)、[下载网址2](https://googlechromelabs.github.io/chrome-for-testing/)、[教程1](https://blog.csdn.net/fighting_jiang/article/details/116298853)、[教程2](https://blog.csdn.net/zhoukeguai/article/details/113247342)、[最后的尝试](https://cn.bing.com/search?q=chromedriver%E4%B8%8B%E8%BD%BD)。（版本相差不大的话也无所谓）
+其次需要下载**对应版本的**```ChromeDriver```：[下载地址1](https://chromedriver.chromium.org/downloads)、[下载地址2](https://googlechromelabs.github.io/chrome-for-testing/)、[下载地址3](https://github.com/LetMeFly666/YuketangAutoPlayer/releases/download/v0.0/chromedriver.exe)、[教程1](https://blog.csdn.net/fighting_jiang/article/details/116298853)、[教程2](https://blog.csdn.net/zhoukeguai/article/details/113247342)、[最后的尝试](https://cn.bing.com/search?q=chromedriver%E4%B8%8B%E8%BD%BD)。（版本相差不大的话也无所谓）
 
 将```ChromeDriver.exe```放到```环境变量```中 或 ```脚本(执行)目录```下。
 
@@ -71,7 +71,7 @@ COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（
 
 COOKIE用来告诉雨课堂你是你。获取方式如下：
 
-登录（你们学校的）雨课堂，```打开开发者工具```（下图的步骤1，也可百度），依次点击“应用→存储→Cookie→https://xxx.yuketang...”，复制**sessionid**对应的值
+登录（你们学校的）雨课堂，```打开开发者工具```（下图的步骤1，也可百度），依次点击“应用→存储→Cookie→https&#58;&#47;&#47;xxx.yuketang...”，复制**sessionid**对应的值
 
 ![/how-to-get-cookie](img/how-to-get-cookie.jpg)
 
