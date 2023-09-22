@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly
- * @LastEditTime: 2023-09-22 21:28:05
+ * @LastEditTime: 2023-09-22 21:49:39
 -->
 # YuketangAutoPlayer
 
@@ -33,7 +33,7 @@ pip install selenium
 
 ### 二、配置浏览器驱动
 
-本项目默认以Chrome为例，以Windows系统为例。
+本项目默认以Chrome为例，以Windows系统为例。其他浏览器原理类似、其他操作系统原理类似。
 
 首先电脑上要安装有[Chrome浏览器](https://www.google.cn/chrome/index.html)（别装到假的Chrome了，之前有同学装了个假Chrome后来问我为什么程序不能正常运行QAQ）
 
