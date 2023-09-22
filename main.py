@@ -2,7 +2,7 @@
 Author: LetMeFly
 Date: 2021-11-01 15:52:32
 LastEditors: LetMeFly
-LastEditTime: 2022-10-11 15:47:47
+LastEditTime: 2023-06-26 13:21:17
 '''
 
 '''
@@ -84,7 +84,7 @@ from time import sleep
 driver = webdriver.Chrome()
 
 # 访问雨课堂并点击“登录”按钮
-driver.get("https://buct.yuketang.cn/")
+driver.get("https://grsbupt.yuketang.cn/")
 driver.find_element_by_class_name("login-btn").click()
 print("请扫码登陆")
 
@@ -99,7 +99,7 @@ print("登录成功")
 # 完成一门课程的函数
 def finishThisCourse(courseId):
     # 访问此视频
-    driver.get("https://buct.yuketang.cn/pro/lms/924ghA7XHG7/14295715/video/" + courseId)
+    driver.get("https://grsbupt.yuketang.cn/pro/lms/84eubUaed9T/16809342/video/" + courseId)
     # 判断是否已经完成
     sleep(3)
     if len(driver.find_elements_by_class_name("icon--gou")):
@@ -120,34 +120,35 @@ def finishThisCourse(courseId):
         return False # 认为不是视频
     sleep(5)
     # video = driver.find_element_by_tag_name("video")
-    def ifVideoPaused():
-        result = driver.execute_script("return document.querySelector('video').paused;")
-        return result
-    tryToPlayTimes = 0
-    while ifVideoPaused():
-        print("暂停状态")
-        try:
-            playButton = driver.find_element_by_class_name('xt_video_player_play_btn')
-            playButton.click()
-        except:
-            driver.execute_script("document.querySelector('.xt_video_player_play_btn').click();")
-            driver.execute_script("console.log(document.querySelector('.xt_video_player_play_btn'));")
-            driver.execute_script("document.querySelector('video').play();")
-        tryToPlayTimes += 1
-        if tryToPlayTimes > 7:
-            driver.refresh()
-            tryToPlayTimes = 0
-            # while True:
-            #     try:
-            #         script = input("请输入要执行的脚本")
-            #         print(driver.execute_script(script))
-            #     except:
-            #         print("执行失败")
-            sleep(3)
-        sleep(1)
+    # def ifVideoPaused():
+    #     result = driver.execute_script("return document.querySelector('video').paused;")
+    #     return result
+    # tryToPlayTimes = 0
+    # while ifVideoPaused():
+    #     print("暂停状态")
+    #     try:
+    #         playButton = driver.find_element_by_class_name('xt_video_player_play_btn')
+    #         playButton.click()
+    #     except:
+    #         driver.execute_script("document.querySelector('.xt_video_player_play_btn').click();")
+    #         driver.execute_script("console.log(document.querySelector('.xt_video_player_play_btn'));")
+    #         driver.execute_script("document.querySelector('video').play();")
+    #     tryToPlayTimes += 1
+    #     if tryToPlayTimes > 7:
+    #         driver.refresh()
+    #         tryToPlayTimes = 0
+    #         # while True:
+    #         #     try:
+    #         #         script = input("请输入要执行的脚本")
+    #         #         print(driver.execute_script(script))
+    #         #     except:
+    #         #         print("执行失败")
+    #         sleep(3)
+    #     sleep(1)
+    driver.execute_script("setInterval(function() {if (document.querySelector('video').paused) {document.querySelector('video').play();}}, 200);")
     print("正在播放")
     while not driver.execute_script("function ifFinished() {percent = document.querySelector('.xt_video_player_progress_currentTime');style = percent.getAttribute('style');return style=='width: 100%;'} return ifFinished();"):
-            sleep(1)
+        sleep(1)
     print("此课程播放完毕！")
     return True
         
@@ -155,7 +156,7 @@ def finishThisCourse(courseId):
 # 访问每一门课
 while True:
     try:
-        for courseId in range(25534615, 25534718 + 1):
+        for courseId in range(35657455, 35657509 + 1):
             finishThisCourse(str(courseId))
         print("全部完成！")
         break
