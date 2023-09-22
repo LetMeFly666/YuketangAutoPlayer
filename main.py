@@ -1,109 +1,131 @@
 '''
 Author: LetMeFly
-Date: 2021-11-01 15:52:32
+Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly
-LastEditTime: 2023-09-12 19:27:08
+LastEditTime: 2023-09-22 21:38:54
+Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
-
 from selenium import webdriver
+from selenium.webdriver import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
 from time import sleep
-driver = webdriver.Chrome()
-
-# 访问雨课堂并点击“登录”按钮
-driver.get("https://grsbupt.yuketang.cn/")
-driver.find_element_by_class_name("login-btn").click()
-print("请扫码登陆")
-
-# 判断是否已经登陆成功
-while True:
-    location = driver.current_url
-    if "courselist" in location:
-        break
-    sleep(0.5)
-print("登录成功")
-
-# 完成一门课程的函数
-def finishThisCourse(courseId):
-    # 访问此视频
-    driver.get("https://grsbupt.yuketang.cn/pro/lms/84eubUXLHEy/17556639/video/" + courseId)
-    # 判断是否已经完成
-    sleep(3)
-    if len(driver.find_elements_by_class_name("icon--gou")):
-        print("此课程已完成")
-        return True
-    def ifCouldPlayAVideo():
-        videoTag = driver.find_element_by_id("video-box")
-        return len(videoTag.find_elements_by_tag_name("div"))
-    couldPlayVideo = False
-    for tryTimes in range(5): # 尝试5次，一次可能是因为网络，5次大概率不是视频
-        if ifCouldPlayAVideo():
-            couldPlayVideo = True
-            print("是课程")
-            break
-        sleep(2)
-    if not couldPlayVideo:
-        print("不是课程")
-        return False # 认为不是视频
-    sleep(5)
-    # video = driver.find_element_by_tag_name("video")
-    # def ifVideoPaused():
-    #     result = driver.execute_script("return document.querySelector('video').paused;")
-    #     return result
-    # tryToPlayTimes = 0
-    # while ifVideoPaused():
-    #     print("暂停状态")
-    #     try:
-    #         playButton = driver.find_element_by_class_name('xt_video_player_play_btn')
-    #         playButton.click()
-    #     except:
-    #         driver.execute_script("document.querySelector('.xt_video_player_play_btn').click();")
-    #         driver.execute_script("console.log(document.querySelector('.xt_video_player_play_btn'));")
-    #         driver.execute_script("document.querySelector('video').play();")
-    #     tryToPlayTimes += 1
-    #     if tryToPlayTimes > 7:
-    #         driver.refresh()
-    #         tryToPlayTimes = 0
-    #         # while True:
-    #         #     try:
-    #         #         script = input("请输入要执行的脚本")
-    #         #         print(driver.execute_script(script))
-    #         #     except:
-    #         #         print("执行失败")
-    #         sleep(3)
-    #     sleep(1)
-
-    driver.execute_script("video = document.querySelector('video');")
-    element_video = driver.find_element_by_tag_name('video')
-    webdriver.ActionChains(driver).move_to_element(element_video).perform()
-    webdriver.ActionChains(driver).click().perform()
-    driver.execute_script("startVideo = setInterval(() => {video.play(); console.log('尝试播放视频');}, 1000); setTimeout(() => {clearInterval(startVideo); console.log('停止尝试播放视频')}, 5200);")
-    print("正在播放")
-    driver.execute_script("video.addEventListener('pause', function() {video.play();});")
-    sleep(5)
-    element_speeds = driver.find_element_by_class_name('xt_video_player_common_value')
-    webdriver.ActionChains(driver).move_to_element(element_speeds).perform()
-    sleep(0.2)
-    element_speed2 = driver.find_element_by_xpath('//*[@id="video-box"]/div/xt-wrap/xt-controls/xt-inner/xt-speedbutton/xt-speedlist/ul/li[1]')
-    webdriver.ActionChains(driver).move_to_element_with_offset(element_speed2, 3, 5).perform()
-    sleep(0.3)
-    element_speed2.click()
-    # webdriver.ActionChains(driver).context_click(element_speed2).perform()
-
-    while not len(driver.find_elements_by_class_name("icon--gou")):
-        sleep(1)
-    print("此课程播放完毕！")
-    return True
-        
-
-# 访问每一门课
-for courseId in range(37551787, 37551907 + 1):
-    # try:
-    if True:
-        finishThisCourse(str(courseId))
-    # except:
-    #     pass
-print("全部完成！")
+import random
 
 
+IF_HEADLESS = False  # 是否以无窗口模式运行（首次运行建议使用有窗口模式以观察是否符合预期）
+COURSE_URL = 'https://grsbupt.yuketang.cn/pro/lms/84eubUXLHEy/17556639/studycontent'  # 要刷的课的地址（获取方式见README）
+COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（获取方式见README）
 
-# 雨课堂字幕：https://buct.yuketang.cn/mooc-api/v1/lms/service/subtitle_parse/?c_d=0D0C4F3DE7D58B649C33DC5901307461&lg=0&_=1665473764724
+
+option = webdriver.ChromeOptions()
+
+if IF_HEADLESS:
+    option.add_argument('--headless')
+
+driver = webdriver.Chrome(options=option)
+driver.maximize_window()
+driver.implicitly_wait(20)
+
+def str2dic(s):
+    d = dict()
+    for i in s.split('; '):
+        temp = i.split('=')
+        d[temp[0]] = temp[1]
+    return d
+
+
+def setCookie(cookies):
+    driver.delete_all_cookies()
+    for name, value in cookies.items():
+        driver.add_cookie({'name': name, 'value': value, 'path': '/'})
+
+
+def ifVideo(div):
+    i = div.find_element_by_tag_name('i')
+    i_class = i.get_attribute('class')
+    return 'icon--shipin' in i_class
+
+
+def getAllvideos_notFinished(allClasses):
+    allVideos = []
+    for thisClass in allClasses:
+        if ifVideo(thisClass) and '已完成' not in thisClass.text:
+            allVideos.append(thisClass)
+    return allVideos
+
+
+def get1video_notFinished(allClasses):
+    for thisClass in allClasses:
+        if ifVideo(thisClass) and '已完成' not in thisClass.text:
+            return thisClass
+    return None
+
+
+# driver.get('https://grsbupt.yuketang.cn/')
+driver.get('https://' + COURSE_URL.split('https://')[1].split('/')[0] + '/')
+cookies = {'sessionid': COOKIE}
+setCookie(cookies)
+driver.get(COURSE_URL)
+
+
+def change2speed2():
+    speedbutton = driver.find_element_by_tag_name('xt-speedbutton')
+    ActionChains(driver).move_to_element(speedbutton).perform()
+    ul = speedbutton.find_element_by_tag_name('ul')
+    lis = ul.find_elements_by_tag_name('li')
+    li_speed2 = lis[0]
+    diffY = speedbutton.location['y'] - li_speed2.location['y']
+    # ActionChains(driver).move_to_element_with_offset(speedbutton, 3, 5).perform()
+    # ActionChains(driver).click().perform()
+    # 我也不知道为啥要一点一点移动上去，反正直接移动上去的话，点击是无效的
+    for i in range(diffY // 10):  # 可能不是一个好算法
+        ActionChains(driver).move_by_offset(0, -10).perform()
+        sleep(0.5)
+    sleep(0.8)
+    ActionChains(driver).click().perform()
+
+
+def mute1video():
+    if driver.execute_script('return video.muted;'):
+        return
+    voice = driver.find_element_by_tag_name('xt-volumebutton')
+    ActionChains(driver).move_to_element(voice).perform()
+    ActionChains(driver).click().perform()
+
+
+def finish1video():
+    allClasses = driver.find_elements_by_class_name('leaf-detail')
+    allVideos = getAllvideos_notFinished(allClasses)
+    if not allVideos:
+        return False
+    video = allVideos[0]
+    driver.execute_script('arguments[0].scrollIntoView(false);', video)
+    video.click()
+
+    driver.switch_to.window(driver.window_handles[-1])
+    WebDriverWait(driver, 10).until(lambda x: driver.execute_script('video = document.querySelector("video"); console.log(video); return video;'))  # 这里即使2次sleep3s选中的video还是null
+    driver.execute_script('videoPlay = setInterval(function() {if (video.paused) {video.play();}}, 200);')
+    driver.execute_script('setTimeout(() => clearInterval(videoPlay), 5000)')
+    driver.execute_script('addFinishMark = function() {finished = document.createElement("span"); finished.setAttribute("id", "LetMeFly_Finished"); document.body.appendChild(finished); console.log("Finished");}')
+    driver.execute_script('lastDuration = 0; setInterval(() => {nowDuration = video.currentTime; if (nowDuration < lastDuration) {addFinishMark()}; lastDuration = nowDuration}, 200)')
+    driver.execute_script('video.addEventListener("pause", () => {video.play()})')
+    mute1video()
+    change2speed2()
+    while True:
+        if driver.execute_script('return document.querySelector("#LetMeFly_Finished");'):
+            print('finished, wait 5s')
+            sleep(5)  # 再让它播5秒
+            driver.close()
+            driver.switch_to.window(driver.window_handles[-1])
+            return True
+        else:
+            print(f'not finished {random.random()}')
+            sleep(3)
+    return False
+
+
+while finish1video():
+    driver.refresh()
+driver.quit()
+print('恭喜你！全部播放完毕')
+sleep(5)
