@@ -2,7 +2,7 @@
 Author: LetMeFly
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly
-LastEditTime: 2023-09-22 21:38:54
+LastEditTime: 2023-09-24 16:05:10
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
@@ -61,11 +61,21 @@ def get1video_notFinished(allClasses):
     return None
 
 
+homePageURL = 'https://' + COURSE_URL.split('https://')[1].split('/')[0] + '/'
 # driver.get('https://grsbupt.yuketang.cn/')
-driver.get('https://' + COURSE_URL.split('https://')[1].split('/')[0] + '/')
-cookies = {'sessionid': COOKIE}
-setCookie(cookies)
+driver.get(homePageURL)
+setCookie({'sessionid': COOKIE})
 driver.get(COURSE_URL)
+sleep(3)
+if 'pro/portal/home' in driver.current_url:
+    print('cookie失效或设置有误，请重设cookie或选择每次扫码登录')
+    driver.get(homePageURL)
+    driver.find_element_by_class_name("login-btn").click()
+    print("请扫码登陆")
+    while 'courselist' not in driver.current_url:  # 判断是否已经登陆成功
+        sleep(0.5)
+    print('登录成功')
+    driver.get(COURSE_URL)
 
 
 def change2speed2():
