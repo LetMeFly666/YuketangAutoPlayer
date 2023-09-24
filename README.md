@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly
- * @LastEditTime: 2023-09-24 16:15:00
+ * @LastEditTime: 2023-09-24 16:19:41
 -->
 # YuketangAutoPlayer
 
@@ -51,13 +51,13 @@ COURSE_URL = 'https://grsbupt.yuketang.cn/pro/lms/84eubUXLHEy/17556639/studycont
 COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（获取方式见README）
 ```
 
-#### IF_HEADLESS
+#### ①IF_HEADLESS
 
 是否以无窗口模式运行。建议以有窗口模式运行（那就不用改这一行了）。
 
 若以无窗口模式运行，则不会弹出Chrome浏览器界面，但视频仍能正常刷取。
 
-#### COURSE_URL
+#### ②COURSE_URL
 
 你要刷的课的URL。
 
@@ -67,7 +67,7 @@ COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（
 
 （注意是https格式的哦）
 
-#### COOKIE
+#### ③COOKIE
 
 **若你觉得COOKIE的获取比较麻烦，你可以选择[跳过这一步](#四开始刷课)并每次重新扫码登录。**
 
