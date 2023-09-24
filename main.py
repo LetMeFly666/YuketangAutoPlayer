@@ -2,11 +2,12 @@
 Author: LetMeFly
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly
-LastEditTime: 2023-09-24 16:05:10
+LastEditTime: 2023-09-24 16:28:32
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from time import sleep
 import random
@@ -41,7 +42,7 @@ def setCookie(cookies):
 
 
 def ifVideo(div):
-    i = div.find_element_by_tag_name('i')
+    i = div.find_element(By.TAG_NAME, 'i')
     i_class = i.get_attribute('class')
     return 'icon--shipin' in i_class
 
@@ -70,7 +71,7 @@ sleep(3)
 if 'pro/portal/home' in driver.current_url:
     print('cookie失效或设置有误，请重设cookie或选择每次扫码登录')
     driver.get(homePageURL)
-    driver.find_element_by_class_name("login-btn").click()
+    driver.find_element(By.CLASS_NAME, 'login-btn').click()
     print("请扫码登陆")
     while 'courselist' not in driver.current_url:  # 判断是否已经登陆成功
         sleep(0.5)
@@ -79,10 +80,10 @@ if 'pro/portal/home' in driver.current_url:
 
 
 def change2speed2():
-    speedbutton = driver.find_element_by_tag_name('xt-speedbutton')
+    speedbutton = driver.find_element(By.TAG_NAME, 'xt-speedbutton')
     ActionChains(driver).move_to_element(speedbutton).perform()
-    ul = speedbutton.find_element_by_tag_name('ul')
-    lis = ul.find_elements_by_tag_name('li')
+    ul = speedbutton.find_element(By.TAG_NAME, 'ul')
+    lis = ul.find_elements(By.TAG_NAME, 'li')
     li_speed2 = lis[0]
     diffY = speedbutton.location['y'] - li_speed2.location['y']
     # ActionChains(driver).move_to_element_with_offset(speedbutton, 3, 5).perform()
@@ -98,13 +99,13 @@ def change2speed2():
 def mute1video():
     if driver.execute_script('return video.muted;'):
         return
-    voice = driver.find_element_by_tag_name('xt-volumebutton')
+    voice = driver.find_element(By.TAG_NAME, 'xt-volumebutton')
     ActionChains(driver).move_to_element(voice).perform()
     ActionChains(driver).click().perform()
 
 
 def finish1video():
-    allClasses = driver.find_elements_by_class_name('leaf-detail')
+    allClasses = driver.find_elements(By.CLASS_NAME, 'leaf-detail')
     allVideos = getAllvideos_notFinished(allClasses)
     if not allVideos:
         return False
