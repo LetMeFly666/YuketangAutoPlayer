@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly
- * @LastEditTime: 2023-09-24 16:11:54
+ * @LastEditTime: 2023-09-24 16:15:00
 -->
 # YuketangAutoPlayer
 
@@ -88,6 +88,10 @@ python main.py
 注意，使用过程中可以缩浏览器小窗口去干其他事情，但尽量不要将鼠标移动到程序弹出的浏览器窗口上。因为本项目的运行原理就是模拟用户对浏览器的控制。
 
 **缓存**：若视频播放完毕程序正常结束，则缓存将被自动清理。若视频未播放完毕提前关掉了程序，则Windows系统下缓存位置在```%temp%/chrome_BITS_xxx```下。
+
+## 感谢列表
+
++ 感谢[Github@SwordLikeRain](https://github.com/SwordLikeRain)的[Cookie错误时提示不准确的issue](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/1)（good first issue）
 
 ## 免责声明
 
