@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly
- * @LastEditTime: 2023-09-24 16:19:41
+ * @LastEditTime: 2023-09-24 16:22:13
 -->
 # YuketangAutoPlayer
 
@@ -69,7 +69,7 @@ COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（
 
 #### ③COOKIE
 
-**若你觉得COOKIE的获取比较麻烦，你可以选择[跳过这一步](#四开始刷课)并每次重新扫码登录。**
+**若你觉得COOKIE的获取比较麻烦，你可以选择[跳过这一步](#四开始刷课)并每次重新扫码登录。**扫码登录不支持HEADLESS模式。
 
 COOKIE用来告诉雨课堂你是你。获取方式如下：
 
