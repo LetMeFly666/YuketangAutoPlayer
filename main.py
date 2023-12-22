@@ -2,7 +2,7 @@
 Author: LetMeFly
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly
-LastEditTime: 2023-09-24 16:28:32
+LastEditTime: 2023-12-22 23:32:59
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
@@ -25,7 +25,9 @@ if IF_HEADLESS:
 
 driver = webdriver.Chrome(options=option)
 driver.maximize_window()
-driver.implicitly_wait(20)
+IMPLICITLY_WAIT = 10
+driver.implicitly_wait(IMPLICITLY_WAIT)
+IS_COMMOONUI = False
 
 def str2dic(s):
     d = dict()
@@ -42,16 +44,26 @@ def setCookie(cookies):
 
 
 def ifVideo(div):
-    i = div.find_element(By.TAG_NAME, 'i')
+    global tempDiv
+    for i in div.find_elements(By.TAG_NAME, 'i'):
+        i_class = i.get_attribute('class')
+        if 'icon--suo' in i_class:  # 锁的图标，表明视频未开放
+            return False
+    try:
+        i = div.find_element(By.TAG_NAME, 'i')
+    except:
+        return False  # 每个小结后面都存在空行<li>
     i_class = i.get_attribute('class')
     return 'icon--shipin' in i_class
 
 
 def getAllvideos_notFinished(allClasses):
+    driver.implicitly_wait(0.1)  # 找不到元素时会找满implicitly_wait秒
     allVideos = []
     for thisClass in allClasses:
         if ifVideo(thisClass) and '已完成' not in thisClass.text:
             allVideos.append(thisClass)
+    driver.implicitly_wait(IMPLICITLY_WAIT)
     return allVideos
 
 
@@ -63,6 +75,8 @@ def get1video_notFinished(allClasses):
 
 
 homePageURL = 'https://' + COURSE_URL.split('https://')[1].split('/')[0] + '/'
+if 'www.yuketang.cn' in homePageURL:
+    IS_COMMOONUI = True
 # driver.get('https://grsbupt.yuketang.cn/')
 driver.get(homePageURL)
 setCookie({'sessionid': COOKIE})
@@ -72,8 +86,8 @@ if 'pro/portal/home' in driver.current_url:
     print('cookie失效或设置有误，请重设cookie或选择每次扫码登录')
     driver.get(homePageURL)
     driver.find_element(By.CLASS_NAME, 'login-btn').click()
-    print("请扫码登陆")
-    while 'courselist' not in driver.current_url:  # 判断是否已经登陆成功
+    print("请扫码登录")
+    while 'courselist' not in driver.current_url:  # 判断是否已经登录成功
         sleep(0.5)
     print('登录成功')
     driver.get(COURSE_URL)
@@ -105,14 +119,24 @@ def mute1video():
 
 
 def finish1video():
-    allClasses = driver.find_elements(By.CLASS_NAME, 'leaf-detail')
+    if IS_COMMOONUI:
+        scoreList = driver.find_element(By.ID, 'tab-student_school_report')
+        scoreList.click()
+        allClasses = driver.find_elements(By.CLASS_NAME, 'study-unit')
+    else:
+        allClasses = driver.find_elements(By.CLASS_NAME, 'leaf-detail')
+    print('正在寻找未完成的视频，请耐心等待')
     allVideos = getAllvideos_notFinished(allClasses)
     if not allVideos:
         return False
     video = allVideos[0]
     driver.execute_script('arguments[0].scrollIntoView(false);', video)
-    video.click()
-
+    if IS_COMMOONUI:
+        span = video.find_element(By.TAG_NAME, 'span')
+        span.click()
+    else:
+        video.click()
+    print('正在播放')
     driver.switch_to.window(driver.window_handles[-1])
     WebDriverWait(driver, 10).until(lambda x: driver.execute_script('video = document.querySelector("video"); console.log(video); return video;'))  # 这里即使2次sleep3s选中的video还是null
     driver.execute_script('videoPlay = setInterval(function() {if (video.paused) {video.play();}}, 200);')
@@ -130,7 +154,7 @@ def finish1video():
             driver.switch_to.window(driver.window_handles[-1])
             return True
         else:
-            print(f'not finished {random.random()}')
+            print(f'正在播放视频 | not finished yet | 随机数: {random.random()}')
             sleep(3)
     return False
 

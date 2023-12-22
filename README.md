@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly
- * @LastEditTime: 2023-09-24 16:34:29
+ * @LastEditTime: 2023-12-22 23:38:00
 -->
 # YuketangAutoPlayer
 
@@ -93,6 +93,7 @@ python main.py
 
 + 感谢[Github@SwordLikeRain](https://github.com/SwordLikeRain)的[Cookie错误时提示不准确的issue](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/1)（good first issue），使得程序修改后支持了每次扫码登录。
 + 感谢[BiliBili@Bacch](https://space.bilibili.com/21043185)的```AttributeError: 'WebDriver' object has no attribute 'find_elements_by_class_name'```的[报错提醒](https://www.bilibili.com/video/BV15K4y1F7EN/#reply187204230304)，使得程序修改后兼容了selenium≥4.0。
++ 感谢[BiliBili@青鹧不懂蓝桉情](https://space.bilibili.com/1208020409)提供的账号，使得程序修改后支持了```www.yuketang.cn```这种域名下的雨课堂界面。
 
 ## 免责声明
 
