@@ -1,20 +1,23 @@
 '''
 Author: LetMeFly
 Date: 2023-09-12 20:49:21
-LastEditors: LetMeFly
-LastEditTime: 2023-12-22 23:32:59
+LastEditors: LetMeFly.xyz
+LastEditTime: 2025-09-20 21:43:07
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.remote.webelement import WebElement
+from typing import List
 from time import sleep
 import random
 
 
 IF_HEADLESS = False  # 是否以无窗口模式运行（首次运行建议使用有窗口模式以观察是否符合预期）
 COURSE_URL = 'https://grsbupt.yuketang.cn/pro/lms/84eubUXLHEy/17556639/studycontent'  # 要刷的课的地址（获取方式见README）
+# COURSE_URL = 'https://www.yuketang.cn/v2/web/studentLog/17556639'  # 要刷的课的地址：你的课程地址也有可能是这种格式(COMMON_UI)
 COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（获取方式见README）
 
 
@@ -27,7 +30,7 @@ driver = webdriver.Chrome(options=option)
 driver.maximize_window()
 IMPLICITLY_WAIT = 10
 driver.implicitly_wait(IMPLICITLY_WAIT)
-IS_COMMOONUI = False
+IS_COMMONUI = False
 
 def str2dic(s):
     d = dict()
@@ -43,12 +46,19 @@ def setCookie(cookies):
         driver.add_cookie({'name': name, 'value': value, 'path': '/'})
 
 
-def ifVideo(div):
-    global tempDiv
+def ifVideo(div: WebElement):
     for i in div.find_elements(By.TAG_NAME, 'i'):
         i_class = i.get_attribute('class')
         if 'icon--suo' in i_class:  # 锁的图标，表明视频未开放
             return False
+    
+    if IS_COMMONUI:  # www.yuketang.cn，非grsbupt.yuketang.cn，属新版ui
+        try:
+            span = div.find_element(By.CSS_SELECTOR, 'span.leaf-flag')
+        except:
+            return False
+        return '视频' in span.text.strip()
+    
     try:
         i = div.find_element(By.TAG_NAME, 'i')
     except:
@@ -57,17 +67,18 @@ def ifVideo(div):
     return 'icon--shipin' in i_class
 
 
-def getAllvideos_notFinished(allClasses):
+def getAllvideos_notFinished(allClasses: List[WebElement]):
     driver.implicitly_wait(0.1)  # 找不到元素时会找满implicitly_wait秒
     allVideos = []
     for thisClass in allClasses:
         if ifVideo(thisClass) and '已完成' not in thisClass.text:
+            print(f'找到未完成的视频: {thisClass.text.strip()}')
             allVideos.append(thisClass)
     driver.implicitly_wait(IMPLICITLY_WAIT)
     return allVideos
 
 
-def get1video_notFinished(allClasses):
+def get1video_notFinished(allClasses: List[WebElement]):
     for thisClass in allClasses:
         if ifVideo(thisClass) and '已完成' not in thisClass.text:
             return thisClass
@@ -76,7 +87,7 @@ def get1video_notFinished(allClasses):
 
 homePageURL = 'https://' + COURSE_URL.split('https://')[1].split('/')[0] + '/'
 if 'www.yuketang.cn' in homePageURL:
-    IS_COMMOONUI = True
+    IS_COMMONUI = True
 # driver.get('https://grsbupt.yuketang.cn/')
 driver.get(homePageURL)
 setCookie({'sessionid': COOKIE})
@@ -119,7 +130,7 @@ def mute1video():
 
 
 def finish1video():
-    if IS_COMMOONUI:
+    if IS_COMMONUI:
         scoreList = driver.find_element(By.ID, 'tab-student_school_report')
         scoreList.click()
         allClasses = driver.find_elements(By.CLASS_NAME, 'study-unit')
@@ -131,7 +142,7 @@ def finish1video():
         return False
     video = allVideos[0]
     driver.execute_script('arguments[0].scrollIntoView(false);', video)
-    if IS_COMMOONUI:
+    if IS_COMMONUI:
         span = video.find_element(By.TAG_NAME, 'span')
         span.click()
     else:
