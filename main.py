@@ -2,7 +2,7 @@
 Author: LetMeFly
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly.xyz
-LastEditTime: 2025-09-20 19:59:41
+LastEditTime: 2025-09-20 21:43:07
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
@@ -30,7 +30,7 @@ driver = webdriver.Chrome(options=option)
 driver.maximize_window()
 IMPLICITLY_WAIT = 10
 driver.implicitly_wait(IMPLICITLY_WAIT)
-IS_COMMOONUI = False
+IS_COMMONUI = False
 
 def str2dic(s):
     d = dict()
@@ -52,7 +52,7 @@ def ifVideo(div: WebElement):
         if 'icon--suo' in i_class:  # 锁的图标，表明视频未开放
             return False
     
-    if IS_COMMOONUI:  # www.yuketang.cn，非grsbupt.yuketang.cn，属新版ui
+    if IS_COMMONUI:  # www.yuketang.cn，非grsbupt.yuketang.cn，属新版ui
         try:
             span = div.find_element(By.CSS_SELECTOR, 'span.leaf-flag')
         except:
@@ -71,9 +71,8 @@ def getAllvideos_notFinished(allClasses: List[WebElement]):
     driver.implicitly_wait(0.1)  # 找不到元素时会找满implicitly_wait秒
     allVideos = []
     for thisClass in allClasses:
-        if ifVideo(thisClass):
-            print('是视频')
         if ifVideo(thisClass) and '已完成' not in thisClass.text:
+            print(f'找到未完成的视频: {thisClass.text.strip()}')
             allVideos.append(thisClass)
     driver.implicitly_wait(IMPLICITLY_WAIT)
     return allVideos
@@ -88,7 +87,7 @@ def get1video_notFinished(allClasses: List[WebElement]):
 
 homePageURL = 'https://' + COURSE_URL.split('https://')[1].split('/')[0] + '/'
 if 'www.yuketang.cn' in homePageURL:
-    IS_COMMOONUI = True
+    IS_COMMONUI = True
 # driver.get('https://grsbupt.yuketang.cn/')
 driver.get(homePageURL)
 setCookie({'sessionid': COOKIE})
@@ -131,7 +130,7 @@ def mute1video():
 
 
 def finish1video():
-    if IS_COMMOONUI:
+    if IS_COMMONUI:
         scoreList = driver.find_element(By.ID, 'tab-student_school_report')
         scoreList.click()
         allClasses = driver.find_elements(By.CLASS_NAME, 'study-unit')
@@ -143,12 +142,10 @@ def finish1video():
         return False
     video = allVideos[0]
     driver.execute_script('arguments[0].scrollIntoView(false);', video)
-    if IS_COMMOONUI:
+    if IS_COMMONUI:
         span = video.find_element(By.TAG_NAME, 'span')
         span.click()
-        print(span.text)
     else:
-        print(video.text)
         video.click()
     print('正在播放')
     driver.switch_to.window(driver.window_handles[-1])
