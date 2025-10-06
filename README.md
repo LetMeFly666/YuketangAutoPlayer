@@ -1,8 +1,8 @@
 <!--
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
- * @LastEditors: LetMeFly
- * @LastEditTime: 2023-12-22 23:38:00
+ * @LastEditors: LetMeFly.xyz
+ * @LastEditTime: 2025-10-06 11:05:23
 -->
 # YuketangAutoPlayer
 
@@ -25,7 +25,7 @@
 
 ### 一、配置Python环境
 
-记得安装好```selenium```
+记得安装好`selenium`
 
 ```bash
 pip install selenium
@@ -37,13 +37,13 @@ pip install selenium
 
 首先电脑上要安装有[Chrome浏览器](https://www.google.cn/chrome/index.html)（别装到假的Chrome了，之前有同学装了个假Chrome后来问我为什么程序不能正常运行QAQ）
 
-其次需要下载**对应版本的**```ChromeDriver```：[下载地址1](https://chromedriver.chromium.org/downloads)、[下载地址2](https://googlechromelabs.github.io/chrome-for-testing/)、[下载地址3](https://github.com/LetMeFly666/YuketangAutoPlayer/releases/download/v0.0/chromedriver.exe)、[教程1](https://blog.csdn.net/fighting_jiang/article/details/116298853)、[教程2](https://blog.csdn.net/zhoukeguai/article/details/113247342)、[最后的尝试](https://cn.bing.com/search?q=chromedriver%E4%B8%8B%E8%BD%BD)。（版本相差不大的话也无所谓）
+其次需要下载**对应版本的**`ChromeDriver`：[下载地址1](https://chromedriver.chromium.org/downloads)、[下载地址2](https://googlechromelabs.github.io/chrome-for-testing/)、[下载地址3](https://github.com/LetMeFly666/YuketangAutoPlayer/releases/download/v0.0/chromedriver.exe)、[教程1](https://blog.csdn.net/fighting_jiang/article/details/116298853)、[教程2](https://blog.csdn.net/zhoukeguai/article/details/113247342)、[最后的尝试](https://cn.bing.com/search?q=chromedriver%E4%B8%8B%E8%BD%BD)。（版本相差不大的话也无所谓）
 
-将```ChromeDriver.exe```放到```环境变量```中 或 ```脚本(执行)目录```下。
+将`ChromeDriver.exe`放到`环境变量`中 或 `脚本(执行)目录`下。
 
 ### 三、设置刷课信息
 
-打开```main.py```，代码头部存在以下信息，需要你自己修改：
+打开`main.py`，代码头部存在以下信息，需要你自己修改：
 
 ```python
 IF_HEADLESS = False  # 是否以无窗口模式运行（首次运行建议使用有窗口模式以观察是否符合预期）
@@ -73,7 +73,7 @@ COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（
 
 COOKIE用来告诉雨课堂你是你。获取方式如下：
 
-登录（你们学校的）雨课堂，```打开开发者工具```（下图的步骤1，也可百度），依次点击“应用→存储→Cookie→ https&#58;&#47;&#47;xxx.yuketang... ”，复制**sessionid**对应的值
+登录（你们学校的）雨课堂，`打开开发者工具`（下图的步骤1，也可百度），依次点击“应用→存储→Cookie→ https&#58;&#47;&#47;xxx.yuketang... ”，复制**sessionid**对应的值
 
 ![/how-to-get-cookie](img/how-to-get-cookie.jpg)
 
@@ -87,13 +87,15 @@ python main.py
 
 注意，使用过程中可以缩浏览器小窗口去干其他事情，但尽量不要将鼠标移动到程序弹出的浏览器窗口上。因为本项目的运行原理就是模拟用户对浏览器的控制。
 
-**缓存**：若视频播放完毕程序正常结束，则缓存将被自动清理。若视频未播放完毕提前关掉了程序，则Windows系统下缓存位置在```%temp%/chrome_BITS_xxx```下。
+**缓存**：若视频播放完毕程序正常结束，则缓存将被自动清理。若视频未播放完毕提前关掉了程序，则Windows系统下缓存位置在`%temp%/chrome_BITS_xxx`下。
 
 ## 感谢列表
 
 + 感谢[Github@SwordLikeRain](https://github.com/SwordLikeRain)的[Cookie错误时提示不准确的issue](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/1)（good first issue），使得程序修改后支持了每次扫码登录。
-+ 感谢[BiliBili@Bacch](https://space.bilibili.com/21043185)的```AttributeError: 'WebDriver' object has no attribute 'find_elements_by_class_name'```的[报错提醒](https://www.bilibili.com/video/BV15K4y1F7EN/#reply187204230304)，使得程序修改后兼容了selenium≥4.0。
-+ 感谢[BiliBili@青鹧不懂蓝桉情](https://space.bilibili.com/1208020409)提供的账号，使得程序修改后支持了```www.yuketang.cn```这种域名下的雨课堂界面。
++ 感谢[BiliBili@Bacch](https://space.bilibili.com/21043185)的`AttributeError: 'WebDriver' object has no attribute 'find_elements_by_class_name'`的[报错提醒](https://www.bilibili.com/video/BV15K4y1F7EN/#reply187204230304)，使得程序修改后兼容了selenium≥4.0。
++ 感谢[BiliBili@青鹧不懂蓝桉情](https://space.bilibili.com/1208020409)提供的账号，使得程序修改后支持了`www.yuketang.cn`这种域名下的雨课堂界面。
++ 感谢[Github@420xincheng](https://github.com/420xincheng)的[没刷完视频，就自动退出的解决方法(#8)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/8)，播放完毕一个视频刷新后等待5秒防止页面暂未加载完成。
++ 感谢[Github@Guo-Chenxu](https://github.com/Guo-Chenxu)的[`ifVideo`函数修改(#13)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/13)，更新COMMONUI下未播放视频的判断逻辑。
 
 ## 免责声明
 
@@ -101,4 +103,4 @@ python main.py
 
 禁止用于其他用途，下载后请于24h内删除【Doge】。
 
-若导致账号封禁（目前来看完全不会）或其他因BUG造成的损失，与本项目无关。
+<small>若导致账号封禁（目前来看完全不会）或其他因BUG造成的损失，与本项目无关。</small>

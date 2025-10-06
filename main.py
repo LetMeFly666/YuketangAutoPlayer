@@ -2,7 +2,7 @@
 Author: LetMeFly
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly.xyz
-LastEditTime: 2025-09-20 21:43:07
+LastEditTime: 2025-10-06 10:57:23
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
@@ -131,6 +131,9 @@ def mute1video():
 
 def finish1video():
     if IS_COMMONUI:
+        # TODO: WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "xxx")))
+        # then remove the sleep before calling function finish1video
+        # todo中改动较大需测试面较广，先用sleep代替
         scoreList = driver.find_element(By.ID, 'tab-student_school_report')
         scoreList.click()
         allClasses = driver.find_elements(By.CLASS_NAME, 'study-unit')
@@ -172,6 +175,7 @@ def finish1video():
 
 while finish1video():
     driver.refresh()
+    sleep(5)  # thanks for @420xincheng's #8
 driver.quit()
 print('恭喜你！全部播放完毕')
 sleep(5)
