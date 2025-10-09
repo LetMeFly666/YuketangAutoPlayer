@@ -2,7 +2,7 @@
 Author: LetMeFly
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly.xyz
-LastEditTime: 2025-10-06 10:57:23
+LastEditTime: 2025-10-09 18:30:37
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
@@ -138,6 +138,10 @@ def finish1video():
         scoreList.click()
         allClasses = driver.find_elements(By.CLASS_NAME, 'study-unit')
     else:
+        tabContent = driver.find_element(By.ID, 'tab-content')  # (#9)
+        tabContent.click()
+        iframe = driver.find_elements(By.CLASS_NAME, 'tab-pane-content-iframe')
+        driver.switch_to.frame(iframe[0]) # 切换到 iframe
         allClasses = driver.find_elements(By.CLASS_NAME, 'leaf-detail')
     print('正在寻找未完成的视频，请耐心等待')
     allVideos = getAllvideos_notFinished(allClasses)
@@ -164,8 +168,14 @@ def finish1video():
         if driver.execute_script('return document.querySelector("#LetMeFly_Finished");'):
             print('finished, wait 5s')
             sleep(5)  # 再让它播5秒
-            driver.close()
-            driver.switch_to.window(driver.window_handles[-1])
+            if IS_COMMONUI:
+                driver.close()
+                driver.switch_to.window(driver.window_handles[-1])
+            else:
+                return_button = driver.find_element(By.XPATH, '//span[text()="返回"]')  # (#9)
+                return_button.click()
+                # 如果表现不佳可以试试下面那行
+                # driver.switch_to.default_content()  # ← 退出 iframe 回到主文档
             return True
         else:
             print(f'正在播放视频 | not finished yet | 随机数: {random.random()}')
