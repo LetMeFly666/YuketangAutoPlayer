@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly.xyz
- * @LastEditTime: 2025-10-06 11:05:23
+ * @LastEditTime: 2025-10-22 16:26:35
 -->
 # YuketangAutoPlayer
 
@@ -96,6 +96,11 @@ python main.py
 + 感谢[BiliBili@青鹧不懂蓝桉情](https://space.bilibili.com/1208020409)提供的账号，使得程序修改后支持了`www.yuketang.cn`这种域名下的雨课堂界面。
 + 感谢[Github@420xincheng](https://github.com/420xincheng)的[没刷完视频，就自动退出的解决方法(#8)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/8)，播放完毕一个视频刷新后等待5秒防止页面暂未加载完成。
 + 感谢[Github@Guo-Chenxu](https://github.com/Guo-Chenxu)的[`ifVideo`函数修改(#13)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/13)，更新COMMONUI下未播放视频的判断逻辑。
++ 感谢[Github@泠辰](https://github.com/Crsuh2er0)的[已过期视频循环播放bugfix (#17)](https://github.com/LetMeFly666/YuketangAutoPlayer/pull/17)，修复了存在已过期视频时会重复播放已过期视频的问题。
+
+## TODO
+
+- [ ] 抽象一个获取待播放视频的函数([Suggest](https://github.com/LetMeFly666/YuketangAutoPlayer/pull/17#discussion_r2450825512)ed by Copilot)。
 
 ## 免责声明
 
