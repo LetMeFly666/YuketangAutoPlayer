@@ -71,7 +71,7 @@ def getAllvideos_notFinished(allClasses: List[WebElement]):
     driver.implicitly_wait(0.1)  # 找不到元素时会找满implicitly_wait秒
     allVideos = []
     for thisClass in allClasses:
-        if ifVideo(thisClass) and '已完成' not in thisClass.text:
+        if ifVideo(thisClass) and '已完成' not in thisClass.text and '截止' not in thisClass.text:
             print(f'找到未完成的视频: {thisClass.text.strip()}')
             allVideos.append(thisClass)
     driver.implicitly_wait(IMPLICITLY_WAIT)
@@ -80,7 +80,7 @@ def getAllvideos_notFinished(allClasses: List[WebElement]):
 
 def get1video_notFinished(allClasses: List[WebElement]):
     for thisClass in allClasses:
-        if ifVideo(thisClass) and '已完成' not in thisClass.text:
+        if ifVideo(thisClass) and '已完成' not in thisClass.text and '截止' not in thisClass.text:
             return thisClass
     return None
 
