@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly.xyz
- * @LastEditTime: 2025-10-22 16:26:35
+ * @LastEditTime: 2025-10-06 11:05:23
 -->
 # YuketangAutoPlayer
 
@@ -16,6 +16,16 @@
 
 ## 使用方法
 
+### 方式一：使用打包好的 exe 文件（推荐）
+
+1. 下载最新版本的 `YuketangAutoPlayer.exe`
+2. 将 `YuketangAutoPlayer.exe` 放到任意目录
+3. 双击运行，首次运行会自动生成 `config.ini` 配置文件
+4. 编辑 `config.ini` 填写你的课程URL和Cookie（获取方式见下文）
+5. 再次运行即可开始自动播放
+
+### 方式二：从源码运行
+
 主要分为四步：
 
 1. 配置Python环境
@@ -25,7 +35,13 @@
 
 ### 一、配置Python环境
 
-记得安装好`selenium`
+使用 uv 包管理器（推荐）：
+
+```bash
+uv pip install selenium
+```
+
+或使用传统 pip：
 
 ```bash
 pip install selenium
@@ -43,37 +59,39 @@ pip install selenium
 
 ### 三、设置刷课信息
 
-打开`main.py`，代码头部存在以下信息，需要你自己修改：
+使用 `config.ini` 配置文件。首次运行时会自动生成模板，也可以复制 `config.ini.example` 并重命名为 `config.ini`：
 
-```python
-IF_HEADLESS = False  # 是否以无窗口模式运行（首次运行建议使用有窗口模式以观察是否符合预期）
-COURSE_URL = 'https://grsbupt.yuketang.cn/pro/lms/84eubUXLHEy/17556639/studycontent'  # 要刷的课的地址（获取方式见README）
-COOKIE = 'sjfeij2983uyfh84y7498uf98ys8f8u9'  # 打死也不要告诉别人哦（获取方式见README）
+```ini
+[Settings]
+headless = false
+course_url = 在此填写你的课程URL
+cookie = 在此填写你的sessionid
+implicitly_wait = 10
 ```
 
-#### ①IF_HEADLESS
+#### ① headless
 
-是否以无窗口模式运行。建议以有窗口模式运行（那就不用改这一行了）。
+是否以无窗口模式运行。建议以有窗口模式运行（设置为 `false`）。
 
-若以无窗口模式运行，则不会弹出Chrome浏览器界面，但视频仍能正常刷取。
+若设置为 `true`，则不会弹出Chrome浏览器界面，但视频仍能正常刷取。
 
-#### ②COURSE_URL
+#### ② course_url
 
 你要刷的课的URL。
 
-进入雨课堂，进入你想要刷的课程，点击“学习内容”，复制地址栏的url即可。
+进入雨课堂，进入你想要刷的课程，点击"学习内容"，复制地址栏的url即可。
 
 ![how-to-get-url](img/how-to-get-url.jpg)
 
 （注意是https格式的哦）
 
-#### ③COOKIE
+#### ③ cookie
 
 **若你觉得COOKIE的获取比较麻烦，你可以选择[跳过这一步](#四开始刷课)并每次重新扫码登录。**扫码登录不支持HEADLESS模式。
 
 COOKIE用来告诉雨课堂你是你。获取方式如下：
 
-登录（你们学校的）雨课堂，`打开开发者工具`（下图的步骤1，也可百度），依次点击“应用→存储→Cookie→ https&#58;&#47;&#47;xxx.yuketang... ”，复制**sessionid**对应的值
+登录（你们学校的）雨课堂，`打开开发者工具`（下图的步骤1，也可百度），依次点击"应用→存储→Cookie→ https&#58;&#47;&#47;xxx.yuketang... "，复制**sessionid**对应的值
 
 ![/how-to-get-cookie](img/how-to-get-cookie.jpg)
 
@@ -82,6 +100,32 @@ COOKIE用来告诉雨课堂你是你。获取方式如下：
 ```python
 python main.py
 ```
+
+## 打包为 EXE（可选）
+
+如果你想要打包成独立的可执行文件：
+
+### 准备工作
+
+1. 确保 `chromedriver.exe` 在项目根目录
+2. 安装 PyInstaller：
+```bash
+uv pip install pyinstaller
+```
+
+### 执行打包
+
+Windows 下直接运行：
+```bash
+build.bat
+```
+
+或手动执行：
+```bash
+pyinstaller YuketangAutoPlayer.spec --clean
+```
+
+打包完成后，`dist` 目录下会生成 `YuketangAutoPlayer.exe`。该 exe 文件已内置 chromedriver，可以独立运行。
 
 ## 使用提示
 
@@ -96,11 +140,6 @@ python main.py
 + 感谢[BiliBili@青鹧不懂蓝桉情](https://space.bilibili.com/1208020409)提供的账号，使得程序修改后支持了`www.yuketang.cn`这种域名下的雨课堂界面。
 + 感谢[Github@420xincheng](https://github.com/420xincheng)的[没刷完视频，就自动退出的解决方法(#8)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/8)，播放完毕一个视频刷新后等待5秒防止页面暂未加载完成。
 + 感谢[Github@Guo-Chenxu](https://github.com/Guo-Chenxu)的[`ifVideo`函数修改(#13)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/13)，更新COMMONUI下未播放视频的判断逻辑。
-+ 感谢[Github@泠辰](https://github.com/Crsuh2er0)的[已过期视频循环播放bugfix (#17)](https://github.com/LetMeFly666/YuketangAutoPlayer/pull/17)，修复了存在已过期视频时会重复播放已过期视频的问题。
-
-## TODO
-
-- [ ] 抽象一个获取待播放视频的函数([Suggest](https://github.com/LetMeFly666/YuketangAutoPlayer/pull/17#discussion_r2450825512)ed by Copilot)。
 
 ## 免责声明
 
