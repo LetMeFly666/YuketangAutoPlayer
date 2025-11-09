@@ -1,0 +1,12 @@
+; YuketangAutoPlayer 配置文件
+; headless: 是否无窗口运行 (true/false)，首次使用建议false
+; course_url: 你的课程地址，必须包含 https:// 协议头
+;             例如: https://www.yuketang.cn/v2/web/studentLog/12345678
+; cookie: 你的sessionid值，获取方式见README.md
+; implicitly_wait: 元素查找超时时间(秒)，一般不需要修改
+
+[Settings]
+headless = false
+course_url = https://在此填写你的课程URL
+cookie = 在此填写你的sessionid
+implicitly_wait = 10

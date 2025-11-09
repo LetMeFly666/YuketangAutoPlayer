@@ -1,0 +1,15 @@
+[project]
+name = "yuketangautoplayer"
+version = "1.0.0"
+description = "雨课堂视频自动播放器 - 基于Selenium的MOOC课程自动刷课工具"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pyinstaller>=6.16.0",
+    "selenium>=4.0.0",
+]
+
+[project.optional-dependencies]
+build = [
+    "pyinstaller>=6.0.0",
+]
