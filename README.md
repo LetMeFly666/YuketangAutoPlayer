@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly.xyz
- * @LastEditTime: 2025-11-13 21:45:45
+ * @LastEditTime: 2025-11-13 23:45:53
 -->
 # YuketangAutoPlayer
 
@@ -18,7 +18,7 @@
 
 ### 方式一：使用打包好的 exe 文件（推荐）
 
-1. 下载最新版本的 [`YuketangAutoPlayer.exe`](https://github.com/LetMeFly666/YuketangAutoPlayer/releases/download/V5.0/YuketangAutoPlayer.exe)
+1. 下载最新版本的 [`YuketangAutoPlayer.exe`](https://github.com/LetMeFly666/YuketangAutoPlayer/releases/download/v5.0/YuketangAutoPlayer.exe)
 2. 将 `YuketangAutoPlayer.exe` 放到任意目录
 3. 双击运行，首次运行会自动生成 `config.ini` 配置文件
 4. 编辑 `config.ini` 填写你的课程URL和Cookie（获取方式见下文）
