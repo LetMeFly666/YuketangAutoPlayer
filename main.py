@@ -2,7 +2,7 @@
 Author: LetMeFly, Guo-Chenxu, Crsuh2er0, 420xincheng, tkzzzzzz6
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly.xyz
-LastEditTime: 2025-11-13 21:31:13
+LastEditTime: 2025-11-13 22:44:00
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
@@ -16,17 +16,6 @@ import random
 import os
 import sys
 import configparser
-
-
-def get_resource_path(relative_path):
-    """获取资源文件的绝对路径,支持PyInstaller打包后的路径"""
-    if hasattr(sys, '_MEIPASS'):
-        # PyInstaller打包后的临时目录
-        base_path = sys._MEIPASS
-    else:
-        # 开发环境: 使用脚本所在目录
-        base_path = os.path.dirname(os.path.abspath(__file__))
-    return os.path.join(base_path, relative_path)
 
 
 def create_config_template(config_path):
