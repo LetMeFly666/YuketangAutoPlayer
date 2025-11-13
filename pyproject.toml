@@ -11,5 +11,5 @@ dependencies = [
 
 [project.optional-dependencies]
 build = [
-    "pyinstaller>=6.0.0",
+    "pyinstaller>=6.16.0",
 ]
