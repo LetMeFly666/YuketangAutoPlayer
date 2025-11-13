@@ -2,7 +2,7 @@
  * @Author: LetMeFly
  * @Date: 2023-09-22 18:26:15
  * @LastEditors: LetMeFly.xyz
- * @LastEditTime: 2025-10-06 11:05:23
+ * @LastEditTime: 2025-11-13 21:45:45
 -->
 # YuketangAutoPlayer
 
@@ -18,7 +18,7 @@
 
 ### 方式一：使用打包好的 exe 文件（推荐）
 
-1. 下载最新版本的 `YuketangAutoPlayer.exe`
+1. 下载最新版本的 [`YuketangAutoPlayer.exe`](https://github.com/LetMeFly666/YuketangAutoPlayer/releases/download/V5.0/YuketangAutoPlayer.exe)
 2. 将 `YuketangAutoPlayer.exe` 放到任意目录
 3. 双击运行，首次运行会自动生成 `config.ini` 配置文件
 4. 编辑 `config.ini` 填写你的课程URL和Cookie（获取方式见下文）
@@ -59,7 +59,7 @@ pip install selenium
 
 ### 三、设置刷课信息
 
-使用 `config.ini` 配置文件。首次运行时会自动生成模板，也可以复制 `config.ini.example` 并重命名为 `config.ini`：
+使用 `config.ini` 配置文件。首次运行脚本时会自动生成 `config.ini` ，也可以复制 `config.ini.example` 并重命名为 `config.ini`：
 
 ```ini
 [Settings]
@@ -79,7 +79,7 @@ implicitly_wait = 10
 
 你要刷的课的URL。
 
-进入雨课堂，进入你想要刷的课程，点击"学习内容"，复制地址栏的url即可。
+进入雨课堂，进入你想要刷的课程，点击“学习内容”，复制地址栏的url即可。
 
 ![how-to-get-url](img/how-to-get-url.jpg)
 
@@ -136,6 +136,13 @@ pyinstaller YuketangAutoPlayer.spec --clean
 + 感谢[BiliBili@青鹧不懂蓝桉情](https://space.bilibili.com/1208020409)提供的账号，使得程序修改后支持了`www.yuketang.cn`这种域名下的雨课堂界面。
 + 感谢[Github@420xincheng](https://github.com/420xincheng)的[没刷完视频，就自动退出的解决方法(#8)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/8)，播放完毕一个视频刷新后等待5秒防止页面暂未加载完成。
 + 感谢[Github@Guo-Chenxu](https://github.com/Guo-Chenxu)的[`ifVideo`函数修改(#13)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/13)，更新COMMONUI下未播放视频的判断逻辑。
++ 感谢[Github@泠辰](https://github.com/Crsuh2er0)的[已过期视频循环播放bugfix (#17)](https://github.com/LetMeFly666/YuketangAutoPlayer/pull/17)，修复了存在已过期视频时会重复播放已过期视频的问题。
++ 感谢[Github@ke tan](https://github.com/tkzzzzzz6)的[exe打包文件方式(#18)](https://github.com/LetMeFly666/YuketangAutoPlayer/issues/18)，Windows当前新版Chrome可一键运行免除环境配置及驱动下载困扰。
+
+## TODO
+
+- [ ] 抽象一个获取待播放视频的函数([Suggest](https://github.com/LetMeFly666/YuketangAutoPlayer/pull/17#discussion_r2450825512)ed by Copilot)。
+
 
 ## 免责声明
 

@@ -1,8 +1,8 @@
 '''
-Author: LetMeFly
+Author: LetMeFly, Guo-Chenxu, Crsuh2er0, 420xincheng, tkzzzzzz6
 Date: 2023-09-12 20:49:21
 LastEditors: LetMeFly.xyz
-LastEditTime: 2025-10-06 10:57:23
+LastEditTime: 2025-11-13 21:31:13
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
