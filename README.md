@@ -95,6 +95,14 @@ COOKIE用来告诉雨课堂你是你。获取方式如下：
 
 ![/how-to-get-cookie](img/how-to-get-cookie.jpg)
 
+#### ④ 终端直接输入（新）
+
+运行 `python main.py` 后，程序会在终端提示你输入 `course_url` 和 `cookie`：
+
+- 输入新值后会自动写入 `config.ini`
+- 直接回车可保留 `config.ini` 中当前值
+- 若 `config.ini` 未正确填写，可直接在终端补全后继续运行
+
 ### 四、开始刷课
 
 ```python

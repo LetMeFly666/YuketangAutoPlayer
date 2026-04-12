@@ -56,18 +56,77 @@ def load_config():
         # 如果config.ini不存在，创建模板
         print(f'未找到配置文件，正在创建模板: {config_path}')
         create_config_template(config_path)
-        print('\n请编辑 config.ini 文件填写你的配置信息后重新运行程序')
-        input('按回车键退出...')
-        sys.exit(0)
+        print('\n已创建配置模板，接下来可直接在终端输入 course_url 和 cookie')
 
     try:
         config.read(config_path, encoding='utf-8')
         print(f'成功加载配置文件: {config_path}')
-        return config
+        return config, config_path
     except Exception as e:
         print(f'读取配置文件失败: {e}')
         input('按回车键退出...')
         sys.exit(1)
+
+
+def save_config(config, config_path):
+    """保存配置到config.ini"""
+    try:
+        with open(config_path, 'w', encoding='utf-8') as f:
+            config.write(f)
+    except Exception as e:
+        print(f'写入配置文件失败: {e}')
+        input('按回车键退出...')
+        sys.exit(1)
+
+
+def is_valid_course_url(course_url):
+    return bool(course_url) and '在此填写' not in course_url and course_url.startswith('https://')
+
+
+def is_valid_cookie(cookie):
+    return bool(cookie) and '在此填写' not in cookie
+
+
+def prompt_course_url_and_cookie(config, config_path):
+    """在终端输入course_url和cookie，并写回配置文件"""
+    if not config.has_section('Settings'):
+        config.add_section('Settings')
+
+    print('\n你可以直接在终端输入课程地址和cookie（回车可保留当前值）')
+    while True:
+        current_course_url = config.get('Settings', 'course_url', fallback='').strip()
+        current_cookie = config.get('Settings', 'cookie', fallback='').strip()
+
+        course_status = current_course_url if is_valid_course_url(current_course_url) else '未配置'
+        cookie_status = '已配置' if is_valid_cookie(current_cookie) else '未配置'
+        print(f'当前 course_url: {course_status}')
+        print(f'当前 cookie: {cookie_status}')
+
+        input_course_url = input('请输入 course_url（https://...）: ').strip()
+        input_cookie = input('请输入 cookie（sessionid）: ').strip()
+
+        is_updated = False
+        if input_course_url:
+            config.set('Settings', 'course_url', input_course_url)
+            is_updated = True
+        if input_cookie:
+            config.set('Settings', 'cookie', input_cookie)
+            is_updated = True
+
+        final_course_url = config.get('Settings', 'course_url', fallback='').strip()
+        final_cookie = config.get('Settings', 'cookie', fallback='').strip()
+
+        if not is_valid_course_url(final_course_url):
+            print('\n错误: course_url 无效，必须以 https:// 开头')
+            continue
+        if not is_valid_cookie(final_cookie):
+            print('\n错误: cookie 不能为空')
+            continue
+
+        if is_updated:
+            save_config(config, config_path)
+            print('已将输入内容写入 config.ini')
+        return final_course_url, final_cookie
 
 
 # 加载配置
@@ -75,25 +134,18 @@ print('='*50)
 print('YuketangAutoPlayer - 雨课堂视频自动播放器')
 print('='*50)
 
-config = load_config()
+config, config_path = load_config()
 
 # 读取配置项
 try:
     IF_HEADLESS = config.getboolean('Settings', 'headless', fallback=False)
-    COURSE_URL = config.get('Settings', 'course_url', fallback='')
-    COOKIE = config.get('Settings', 'cookie', fallback='')
     IMPLICITLY_WAIT = config.getint('Settings', 'implicitly_wait', fallback=10)
 except Exception as e:
     print(f'\n配置文件格式错误: {e}')
     input('按回车键退出...')
     sys.exit(1)
 
-# 验证配置
-if not COURSE_URL or not COOKIE or '在此填写' in COURSE_URL or '在此填写' in COOKIE:
-    print('\n错误: 检测到配置文件未正确填写!')
-    print('请编辑 config.ini 文件，填写正确的 course_url 和 cookie')
-    input('按回车键退出...')
-    sys.exit(1)
+COURSE_URL, COOKIE = prompt_course_url_and_cookie(config, config_path)
 
 print(f'\n配置信息:')
 print(f'  无窗口模式: {IF_HEADLESS}')
