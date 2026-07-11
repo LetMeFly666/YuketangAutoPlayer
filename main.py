@@ -9,6 +9,7 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.webelement import WebElement
 from typing import List
 from time import sleep
@@ -211,47 +212,111 @@ def mute1video():
 
 def finish1video():
     if IS_COMMONUI:
-        # TODO: WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "xxx")))
-        # then remove the sleep before calling function finish1video
-        # todo中改动较大需测试面较广，先用sleep代替
-        scoreList = driver.find_element(By.ID, 'tab-student_school_report')
-        scoreList.click()
+        scoreList = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, 'tab-student_school_report'))
+        )
+        driver.execute_script("arguments[0].click();", scoreList)
+        sleep(2) 
         allClasses = driver.find_elements(By.CLASS_NAME, 'study-unit')
     else:
         allClasses = driver.find_elements(By.CLASS_NAME, 'leaf-detail')
+        
     print('正在寻找未完成的视频，请耐心等待')
     allVideos = getAllvideos_notFinished(allClasses)
     if not allVideos:
         return False
-    video = allVideos[0]
-    driver.execute_script('arguments[0].scrollIntoView(false);', video)
+        
+    # 获取第一个未完成的视频
+    current_video = allVideos[0]
+    
+    driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", current_video)
+    sleep(1) 
+    
     if IS_COMMONUI:
-        span = video.find_element(By.TAG_NAME, 'span')
-        span.click()
+        span = current_video.find_element(By.TAG_NAME, 'span')
+        driver.execute_script("arguments[0].click();", span)
     else:
-        video.click()
+        driver.execute_script("arguments[0].click();", current_video)
+        
     print('正在播放')
     driver.switch_to.window(driver.window_handles[-1])
-    WebDriverWait(driver, 10).until(lambda x: driver.execute_script('video = document.querySelector("video"); console.log(video); return video;'))  # 这里即使2次sleep3s选中的video还是null
-    driver.execute_script('videoPlay = setInterval(function() {if (video.paused) {video.play();}}, 200);')
-    driver.execute_script('setTimeout(() => clearInterval(videoPlay), 5000)')
-    driver.execute_script('addFinishMark = function() {finished = document.createElement("span"); finished.setAttribute("id", "LetMeFly_Finished"); document.body.appendChild(finished); console.log("Finished");}')
-    driver.execute_script('lastDuration = 0; setInterval(() => {nowDuration = video.currentTime; if (nowDuration < lastDuration) {addFinishMark()}; lastDuration = nowDuration}, 200)')
-    driver.execute_script('video.addEventListener("pause", () => {video.play()})')
-    mute1video()
-    change2speed2()
+    
+    # === 核心播放与注入逻辑 ===
+    # 确保视频加载，并将其注册为全局变量 window.video，防止后面报错
+    WebDriverWait(driver, 10).until(lambda x: driver.execute_script('window.video = document.querySelector("video"); return window.video;')) 
+    
+    js_script = """
+    // 1. 强制静音，绕过浏览器的自动播放限制
+    window.video.muted = true;
+    
+    // 2. 废除视频的 pause 方法，彻底防止雨课堂强行暂停视频！
+    window.video.pause = function() { console.log("已拦截雨课堂的暂停指令"); };
+    
+    // 3. 强行启动初始播放
+    var p = window.video.play();
+    if (p !== undefined) {
+        p.catch(function(e) { console.log("播放拦截已忽略:", e); });
+    }
+    
+    // 4. 安全判断是否播放完毕 (带 5 秒防误退缓冲)
+    window.addFinishMark = function() {
+        if (!document.querySelector("#LetMeFly_Finished")) {
+            var finished = document.createElement("span"); 
+            finished.setAttribute("id", "LetMeFly_Finished"); 
+            document.body.appendChild(finished); 
+        }
+    };
+    
+    window.lastDuration = 0; 
+    
+    // 开启循环巡逻，每 1000 毫秒（1秒）检查一次
+    setInterval(function() {
+        // 【新增修复】如果发现视频因为“恢复进度”等原因被网页强行停住了，立刻踢醒它！
+        if (window.video.paused) {
+            window.video.play();
+            // 同时尝试点击网页 UI 上的播放按钮，双重保险
+            var playBtn = document.querySelector('.xt_video_player_play_btn') || document.querySelector('.play-btn');
+            if (playBtn) playBtn.click();
+        }
+    
+        var nowDuration = window.video.currentTime; 
+        if ((nowDuration < window.lastDuration && window.lastDuration > 5) || window.video.ended) {
+            window.addFinishMark();
+        }
+        window.lastDuration = nowDuration;
+    }, 1000);
+    """
+    
+    # 注入黑科技JS
+    driver.execute_script(js_script)
+    
+    print('等待播放器 UI 加载...')
+    sleep(3) 
+    
+    # 加上 try-except 保护，即使UI变化找不到按钮也不会崩溃
+    try:
+        mute1video()
+    except Exception:
+        pass
+        
+    try:
+        change2speed2()
+    except Exception as e:
+        print(f"调节倍速失败，按原速播放...")
+
+    # 循环检测是否播放完成
     while True:
         if driver.execute_script('return document.querySelector("#LetMeFly_Finished");'):
             print('finished, wait 5s')
-            sleep(5)  # 再让它播5秒
+            sleep(5)  
             driver.close()
             driver.switch_to.window(driver.window_handles[-1])
             return True
         else:
-            print(f'正在播放视频 | not finished yet | 随机数: {random.random()}')
+            print(f'正在播放视频 | 随机数防挂机: {random.random()}')
             sleep(3)
+            
     return False
-
 
 while finish1video():
     driver.refresh()
