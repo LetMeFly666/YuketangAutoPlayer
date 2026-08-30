@@ -242,18 +242,67 @@ def finish1video():
     driver.switch_to.window(driver.window_handles[-1])
     
     # === 核心播放与注入逻辑 ===
-    # 确保视频加载，并将其注册为全局变量 window.video，防止后面报错
-    WebDriverWait(driver, 10).until(lambda x: driver.execute_script('window.video = document.querySelector("video"); return window.video;')) 
+    # 在当前页面及同源 iframe 中查找可播放的视频，并注册为全局变量 window.video
+    find_video_script = """
+    function collectVideos(doc, videos) {
+        videos.push.apply(videos, Array.from(doc.querySelectorAll('video')));
+        for (const iframe of doc.querySelectorAll('iframe')) {
+            try {
+                if (iframe.contentDocument) {
+                    collectVideos(iframe.contentDocument, videos);
+                }
+            } catch (e) {
+                // 跨域 iframe 无法读取，直接跳过
+            }
+        }
+    }
+
+    const videos = [];
+    collectVideos(document, videos);
+    const playableVideos = videos.filter(function(video) {
+        return video.currentSrc || video.src || video.querySelector('source[src]');
+    });
+    const candidates = playableVideos.length ? playableVideos : videos;
+    window.video = candidates.find(function(video) {
+        return !video.paused && !video.ended;
+    }) || candidates.find(function(video) {
+        return !video.ended && video.readyState > 0;
+    }) || candidates[0] || null;
+    return window.video;
+    """
+    WebDriverWait(driver, 10).until(
+        lambda x: driver.execute_script(find_video_script)
+    )
     
     js_script = """
     // 1. 强制静音，绕过浏览器的自动播放限制
     window.video.muted = true;
+
+    // 清理上一次注入的监听器和计时器，避免重复注册
+    if (typeof window.cleanupVideoHandling === 'function') {
+        window.cleanupVideoHandling();
+    }
     
     // 2. 启动初始播放
     var p = window.video.play();
     if (p !== undefined) {
         p.catch(function(e) { console.log("播放拦截已忽略:", e); });
     }
+
+    // 监听暂停事件并立即恢复播放，不覆盖原生 pause 方法
+    window.videoResumeTarget = window.video;
+    window.resumeVideo = function() {
+        if (!window.videoResumeTarget || window.videoResumeTarget.ended ||
+                !window.videoResumeTarget.paused) {
+            return;
+        }
+        var resumePromise = window.videoResumeTarget.play();
+        if (resumePromise !== undefined) {
+            resumePromise.catch(function(e) { console.log("恢复播放失败:", e); });
+        }
+    };
+    window.videoResumeHandler = window.resumeVideo;
+    window.videoResumeTarget.addEventListener('pause', window.videoResumeHandler);
     
     // 3. 标记视频播放完毕
     window.addFinishMark = function() {
@@ -264,16 +313,28 @@ def finish1video():
         }
     };
     
-    // 避免重复注入时累积多个计时器
-    if (window.videoCheckInterval) {
-        clearInterval(window.videoCheckInterval);
-    }
+    window.cleanupVideoHandling = function() {
+        if (window.videoCheckInterval) {
+            clearInterval(window.videoCheckInterval);
+            window.videoCheckInterval = null;
+        }
+        if (window.videoResumeTarget && window.videoResumeHandler) {
+            window.videoResumeTarget.removeEventListener('pause', window.videoResumeHandler);
+        }
+        window.videoResumeTarget = null;
+        window.videoResumeHandler = null;
+        window.resumeVideo = null;
+    };
 
     // 每秒恢复意外暂停，并根据视频总时长判断是否播放完毕
     window.videoCheckInterval = setInterval(function() {
         if (window.video.paused && !window.video.ended) {
-            window.video.play();
-            var playBtn = document.querySelector('.xt_video_player_play_btn') || document.querySelector('.play-btn');
+            window.resumeVideo();
+            var playerDocument = window.video.ownerDocument || document;
+            var playBtn = playerDocument.querySelector('.xt_video_player_play_btn') ||
+                playerDocument.querySelector('.play-btn') ||
+                document.querySelector('.xt_video_player_play_btn') ||
+                document.querySelector('.play-btn');
             if (playBtn) playBtn.click();
         }
 
@@ -282,8 +343,7 @@ def finish1video():
             window.video.currentTime >= duration - 1;
         if (window.video.ended || reachedEnd) {
             window.addFinishMark();
-            clearInterval(window.videoCheckInterval);
-            window.videoCheckInterval = null;
+            window.cleanupVideoHandling();
         }
     }, 1000);
     """
@@ -311,9 +371,8 @@ def finish1video():
             print('finished, wait 5s')
             sleep(5)  # 再让它播5秒
             driver.execute_script('''
-                if (window.videoCheckInterval) {
-                    clearInterval(window.videoCheckInterval);
-                    window.videoCheckInterval = null;
+                if (typeof window.cleanupVideoHandling === 'function') {
+                    window.cleanupVideoHandling();
                 }
             ''')
             driver.close()
