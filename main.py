@@ -249,16 +249,13 @@ def finish1video():
     // 1. 强制静音，绕过浏览器的自动播放限制
     window.video.muted = true;
     
-    // 2. 废除视频的 pause 方法，彻底防止雨课堂强行暂停视频！
-    window.video.pause = function() { console.log("已拦截雨课堂的暂停指令"); };
-    
-    // 3. 强行启动初始播放
+    // 2. 启动初始播放
     var p = window.video.play();
     if (p !== undefined) {
         p.catch(function(e) { console.log("播放拦截已忽略:", e); });
     }
     
-    // 4. 安全判断是否播放完毕 (带 5 秒防误退缓冲)
+    // 3. 标记视频播放完毕
     window.addFinishMark = function() {
         if (!document.querySelector("#LetMeFly_Finished")) {
             var finished = document.createElement("span"); 
@@ -267,23 +264,27 @@ def finish1video():
         }
     };
     
-    window.lastDuration = 0; 
-    
-    // 开启循环巡逻，每 1000 毫秒（1秒）检查一次
-    setInterval(function() {
-        // 【新增修复】如果发现视频因为“恢复进度”等原因被网页强行停住了，立刻踢醒它！
-        if (window.video.paused) {
+    // 避免重复注入时累积多个计时器
+    if (window.videoCheckInterval) {
+        clearInterval(window.videoCheckInterval);
+    }
+
+    // 每秒恢复意外暂停，并根据视频总时长判断是否播放完毕
+    window.videoCheckInterval = setInterval(function() {
+        if (window.video.paused && !window.video.ended) {
             window.video.play();
-            // 同时尝试点击网页 UI 上的播放按钮，双重保险
             var playBtn = document.querySelector('.xt_video_player_play_btn') || document.querySelector('.play-btn');
             if (playBtn) playBtn.click();
         }
-    
-        var nowDuration = window.video.currentTime; 
-        if ((nowDuration < window.lastDuration && window.lastDuration > 5) || window.video.ended) {
+
+        var duration = window.video.duration;
+        var reachedEnd = Number.isFinite(duration) && duration > 0 &&
+            window.video.currentTime >= duration - 1;
+        if (window.video.ended || reachedEnd) {
             window.addFinishMark();
+            clearInterval(window.videoCheckInterval);
+            window.videoCheckInterval = null;
         }
-        window.lastDuration = nowDuration;
     }, 1000);
     """
     
@@ -308,15 +309,21 @@ def finish1video():
     while True:
         if driver.execute_script('return document.querySelector("#LetMeFly_Finished");'):
             print('finished, wait 5s')
-            sleep(5)  
+            sleep(5)  # 再让它播5秒
+            driver.execute_script('''
+                if (window.videoCheckInterval) {
+                    clearInterval(window.videoCheckInterval);
+                    window.videoCheckInterval = null;
+                }
+            ''')
             driver.close()
             driver.switch_to.window(driver.window_handles[-1])
             return True
         else:
-            print(f'正在播放视频 | 随机数防挂机: {random.random()}')
+            print(f'正在播放视频 | not finished yet | 随机数: {random.random()}')
             sleep(3)
-            
     return False
+
 
 while finish1video():
     driver.refresh()
@@ -324,3 +331,4 @@ while finish1video():
 driver.quit()
 print('恭喜你！全部播放完毕')
 sleep(5)
+
