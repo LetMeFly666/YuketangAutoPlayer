@@ -4,9 +4,11 @@
 ;             例如: https://www.yuketang.cn/v2/web/studentLog/12345678
 ; cookie: 你的sessionid值，获取方式见README.md
 ; implicitly_wait: 元素查找超时时间(秒)，一般不需要修改
+; graphic_text_wait: 图文任务打开后等待时间(秒)
 
 [Settings]
 headless = false
 course_url = https://在此填写你的课程URL
 cookie = 在此填写你的sessionid
 implicitly_wait = 10
+graphic_text_wait = 5

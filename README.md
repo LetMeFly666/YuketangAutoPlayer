@@ -6,7 +6,7 @@
 -->
 # YuketangAutoPlayer
 
-雨课堂刷课脚本（雨课堂视频自动播放），基于浏览器模拟的方式运行，无需虚拟机，甚至可以以无窗口模式运行。（MOOC）
+雨课堂刷课脚本（雨课堂视频、图文自动处理），基于浏览器模拟的方式运行，无需虚拟机，甚至可以以无窗口模式运行。（MOOC）
 
 视频演示地址：[Bilibili@BV15K4y1F7EN](https://www.bilibili.com/video/BV15K4y1F7EN/)
 
@@ -94,6 +94,10 @@ COOKIE用来告诉雨课堂你是你。获取方式如下：
 登录（你们学校的）雨课堂，`打开开发者工具`（下图的步骤1，也可百度），依次点击"应用→存储→Cookie→ https&#58;&#47;&#47;xxx.yuketang... "，复制**sessionid**对应的值
 
 ![/how-to-get-cookie](img/how-to-get-cookie.jpg)
+
+#### ④ graphic_text_wait
+
+图文任务打开后保持的时间，单位为秒，默认值为 `5`。程序会在图文页面等待这段时间后关闭详情页或返回课程列表。
 
 ### 四、开始刷课
 

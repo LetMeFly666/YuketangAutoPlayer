@@ -6,16 +6,13 @@ LastEditTime: 2025-11-13 22:44:00
 Description: 开源于https://github.com/LetMeFly666/YuketangAutoPlayer 欢迎issue、PR
 '''
 from selenium import webdriver
-from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.remote.webelement import WebElement
-from typing import List
 from time import sleep
-import random
 import os
 import sys
 import configparser
+
+from task_handlers import TaskRunner
 
 
 def create_config_template(config_path):
@@ -25,7 +22,8 @@ def create_config_template(config_path):
         'headless': 'false',
         'course_url': 'https://在此填写你的课程URL',
         'cookie': '在此填写你的sessionid',
-        'implicitly_wait': '10'
+        'implicitly_wait': '10',
+        'graphic_text_wait': '5'
     }
 
     try:
@@ -36,6 +34,7 @@ def create_config_template(config_path):
             f.write(';             例如: https://www.yuketang.cn/v2/web/studentLog/12345678\n')
             f.write('; cookie: 你的sessionid值，获取方式见README.md\n')
             f.write('; implicitly_wait: 元素查找超时时间(秒)，一般不需要修改\n\n')
+            f.write('; graphic_text_wait: 图文任务打开后等待时间(秒)\n\n')
             config.write(f)
     except Exception as e:
         print(f'创建配置文件失败: {e}')
@@ -72,7 +71,7 @@ def load_config():
 
 # 加载配置
 print('='*50)
-print('YuketangAutoPlayer - 雨课堂视频自动播放器')
+print('YuketangAutoPlayer - 雨课堂视频和图文自动播放器')
 print('='*50)
 
 config = load_config()
@@ -83,6 +82,7 @@ try:
     COURSE_URL = config.get('Settings', 'course_url', fallback='')
     COOKIE = config.get('Settings', 'cookie', fallback='')
     IMPLICITLY_WAIT = config.getint('Settings', 'implicitly_wait', fallback=10)
+    GRAPHIC_TEXT_WAIT = config.getint('Settings', 'graphic_text_wait', fallback=5)
 except Exception as e:
     print(f'\n配置文件格式错误: {e}')
     input('按回车键退出...')
@@ -112,58 +112,10 @@ driver.maximize_window()
 driver.implicitly_wait(IMPLICITLY_WAIT)
 IS_COMMONUI = False
 
-def str2dic(s):
-    d = dict()
-    for i in s.split('; '):
-        temp = i.split('=')
-        d[temp[0]] = temp[1]
-    return d
-
-
 def setCookie(cookies):
     driver.delete_all_cookies()
     for name, value in cookies.items():
         driver.add_cookie({'name': name, 'value': value, 'path': '/'})
-
-
-def ifVideo(div: WebElement):
-    for i in div.find_elements(By.TAG_NAME, 'i'):
-        i_class = i.get_attribute('class')
-        if 'icon--suo' in i_class:  # 锁的图标，表明视频未开放
-            return False
-    
-    if IS_COMMONUI:  # www.yuketang.cn，非grsbupt.yuketang.cn，属新版ui
-        try:
-            span = div.find_element(By.CSS_SELECTOR, 'span.leaf-flag')
-        except:
-            return False
-        return '视频' in span.text.strip()
-    
-    try:
-        i = div.find_element(By.TAG_NAME, 'i')
-    except:
-        return False  # 每个小结后面都存在空行<li>
-    i_class = i.get_attribute('class')
-    return 'icon--shipin' in i_class
-
-
-def getAllvideos_notFinished(allClasses: List[WebElement]):
-    driver.implicitly_wait(0.1)  # 找不到元素时会找满implicitly_wait秒
-    allVideos = []
-    for thisClass in allClasses:
-        if ifVideo(thisClass) and '已完成' not in thisClass.text and '截止' not in thisClass.text:
-            print(f'找到未完成的视频: {thisClass.text.strip()}')
-            allVideos.append(thisClass)
-    driver.implicitly_wait(IMPLICITLY_WAIT)
-    return allVideos
-
-
-def get1video_notFinished(allClasses: List[WebElement]):
-    for thisClass in allClasses:
-        if ifVideo(thisClass) and '已完成' not in thisClass.text and '截止' not in thisClass.text:
-            return thisClass
-    return None
-
 
 homePageURL = 'https://' + COURSE_URL.split('https://')[1].split('/')[0] + '/'
 if 'www.yuketang.cn' in homePageURL:
@@ -184,78 +136,15 @@ if 'pro/portal/home' in driver.current_url:
     driver.get(COURSE_URL)
 
 
-def change2speed2():
-    speedbutton = driver.find_element(By.TAG_NAME, 'xt-speedbutton')
-    ActionChains(driver).move_to_element(speedbutton).perform()
-    ul = speedbutton.find_element(By.TAG_NAME, 'ul')
-    lis = ul.find_elements(By.TAG_NAME, 'li')
-    li_speed2 = lis[0]
-    diffY = speedbutton.location['y'] - li_speed2.location['y']
-    # ActionChains(driver).move_to_element_with_offset(speedbutton, 3, 5).perform()
-    # ActionChains(driver).click().perform()
-    # 我也不知道为啥要一点一点移动上去，反正直接移动上去的话，点击是无效的
-    for i in range(diffY // 10):  # 可能不是一个好算法
-        ActionChains(driver).move_by_offset(0, -10).perform()
-        sleep(0.5)
-    sleep(0.8)
-    ActionChains(driver).click().perform()
+runner = TaskRunner(
+    driver,
+    is_common_ui=IS_COMMONUI,
+    graphic_text_wait=GRAPHIC_TEXT_WAIT,
+)
 
-
-def mute1video():
-    if driver.execute_script('return video.muted;'):
-        return
-    voice = driver.find_element(By.TAG_NAME, 'xt-volumebutton')
-    ActionChains(driver).move_to_element(voice).perform()
-    ActionChains(driver).click().perform()
-
-
-def finish1video():
-    if IS_COMMONUI:
-        # TODO: WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "xxx")))
-        # then remove the sleep before calling function finish1video
-        # todo中改动较大需测试面较广，先用sleep代替
-        scoreList = driver.find_element(By.ID, 'tab-student_school_report')
-        scoreList.click()
-        allClasses = driver.find_elements(By.CLASS_NAME, 'study-unit')
-    else:
-        allClasses = driver.find_elements(By.CLASS_NAME, 'leaf-detail')
-    print('正在寻找未完成的视频，请耐心等待')
-    allVideos = getAllvideos_notFinished(allClasses)
-    if not allVideos:
-        return False
-    video = allVideos[0]
-    driver.execute_script('arguments[0].scrollIntoView(false);', video)
-    if IS_COMMONUI:
-        span = video.find_element(By.TAG_NAME, 'span')
-        span.click()
-    else:
-        video.click()
-    print('正在播放')
-    driver.switch_to.window(driver.window_handles[-1])
-    WebDriverWait(driver, 10).until(lambda x: driver.execute_script('video = document.querySelector("video"); console.log(video); return video;'))  # 这里即使2次sleep3s选中的video还是null
-    driver.execute_script('videoPlay = setInterval(function() {if (video.paused) {video.play();}}, 200);')
-    driver.execute_script('setTimeout(() => clearInterval(videoPlay), 5000)')
-    driver.execute_script('addFinishMark = function() {finished = document.createElement("span"); finished.setAttribute("id", "LetMeFly_Finished"); document.body.appendChild(finished); console.log("Finished");}')
-    driver.execute_script('lastDuration = 0; setInterval(() => {nowDuration = video.currentTime; if (nowDuration < lastDuration) {addFinishMark()}; lastDuration = nowDuration}, 200)')
-    driver.execute_script('video.addEventListener("pause", () => {video.play()})')
-    mute1video()
-    change2speed2()
-    while True:
-        if driver.execute_script('return document.querySelector("#LetMeFly_Finished");'):
-            print('finished, wait 5s')
-            sleep(5)  # 再让它播5秒
-            driver.close()
-            driver.switch_to.window(driver.window_handles[-1])
-            return True
-        else:
-            print(f'正在播放视频 | not finished yet | 随机数: {random.random()}')
-            sleep(3)
-    return False
-
-
-while finish1video():
+while runner.process_next():
     driver.refresh()
     sleep(5)  # thanks for @420xincheng's #8
 driver.quit()
-print('恭喜你！全部播放完毕')
+print('恭喜你！所有支持的任务处理完毕')
 sleep(5)
